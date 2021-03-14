@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Comic {
@@ -16,10 +18,10 @@ public class Comic {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "library_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Library library;
+    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
+    private Set<Book> books = new HashSet<>();
+
+
 
     public int getId() {
         return id;
@@ -37,11 +39,16 @@ public class Comic {
         this.name = name;
     }
 
-    public Library getLibrary() {
-        return library;
+    public Set<Book> getBooks() {
+        return books;
     }
 
-    public void setLibrary(Library library) {
-        this.library = library;
+    public void setBooks(Set<Book> books) {
+        this.books = books;
+
+        for(Book b : books) {
+            b.setComic(this);
+        }
     }
+
 }

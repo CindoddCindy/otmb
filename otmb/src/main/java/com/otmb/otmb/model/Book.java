@@ -21,6 +21,11 @@ public class Book {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Library library;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "comic_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Comic comic;
+
     public int getId() {
         return id;
     }
@@ -43,5 +48,13 @@ public class Book {
 
     public void setLibrary(Library library) {
         this.library = library;
+    }
+
+    public Comic getComic() {
+        return comic;
+    }
+
+    public void setComic(Comic comic) {
+        this.comic = comic;
     }
 }

@@ -18,48 +18,35 @@ import java.net.URI;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("/api/v1/comics")
 public class ComicController {
 
     private final ComicRepository comicRepository;
-    private final LibraryRepository libraryRepository;
+    private final BookRepository bookRepository;
 
     @Autowired
-    public ComicController(ComicRepository comicRepository, LibraryRepository libraryRepository) {
+    public ComicController(ComicRepository comicRepository, BookRepository bookRepository) {
         this.comicRepository = comicRepository;
-        this.libraryRepository = libraryRepository;
+        this.bookRepository = bookRepository;
     }
 
     @PostMapping
-    public ResponseEntity<Comic> create(@RequestBody @Valid Comic comic) {
-        Optional<Library> optionalLibrary = libraryRepository.findById(comic.getLibrary().getId());
-        if (!optionalLibrary.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
-        comic.setLibrary(optionalLibrary.get());
-
-        Comic saveComic = comicRepository.save(comic);
+    public ResponseEntity<Comic> create(@Valid @RequestBody Comic comic) {
+        Comic savedComic = comicRepository.save(comic);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(saveComic.getId()).toUri();
+                .buildAndExpand(savedComic.getId()).toUri();
 
-        return ResponseEntity.created(location).body(saveComic);
+        return ResponseEntity.created(location).body(savedComic);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Comic> update(@RequestBody @Valid Comic comic, @PathVariable Integer id) {
-        Optional<Library> optionalLibrary = libraryRepository.findById(comic.getLibrary().getId());
+    public ResponseEntity<Comic> update(@PathVariable Integer id, @Valid @RequestBody Comic comic) {
+        Optional<Comic> optionalLibrary = comicRepository.findById(id);
         if (!optionalLibrary.isPresent()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
-        Optional<Comic> optionalComic = comicRepository.findById(id);
-        if (!optionalComic.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
-        comic.setLibrary(optionalLibrary.get());
-        comic.setId(optionalComic.get().getId());
+        comic.setId(optionalLibrary.get().getId());
         comicRepository.save(comic);
 
         return ResponseEntity.noContent().build();
@@ -67,28 +54,28 @@ public class ComicController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Comic> delete(@PathVariable Integer id) {
-        Optional<Comic> optionalComic = comicRepository.findById(id);
-        if (!optionalComic.isPresent()) {
+        Optional<Comic> optionalLibrary = comicRepository.findById(id);
+        if (!optionalLibrary.isPresent()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
-        comicRepository.delete(optionalComic.get());
+        comicRepository.delete(optionalLibrary.get());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Comic> getById(@PathVariable Integer id) {
+        Optional<Comic> optionalLibrary = comicRepository.findById(id);
+        if (!optionalLibrary.isPresent()) {
+            return ResponseEntity.unprocessableEntity().build();
+        }
+
+        return ResponseEntity.ok(optionalLibrary.get());
     }
 
     @GetMapping
     public ResponseEntity<Page<Comic>> getAll(Pageable pageable) {
         return ResponseEntity.ok(comicRepository.findAll(pageable));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Comic> getById(@PathVariable Integer id) {
-        Optional<Comic> optionalComic = comicRepository.findById(id);
-        if (!optionalComic.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
-        return ResponseEntity.ok(optionalComic.get());
     }
 }

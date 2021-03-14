@@ -18,8 +18,6 @@ public class Library {
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
     private Set<Book> books = new HashSet<>();
 
-    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
-    private Set<Comic> comics = new HashSet<>();
 
 
     public int getId() {
@@ -50,15 +48,5 @@ public class Library {
         }
     }
 
-    public Set<Comic> getComics() {
-        return comics;
-    }
 
-    public void setComics(Set<Comic> comics) {
-        this.comics = comics;
-
-        for(Comic c : comics) {
-            c.setLibrary(this);
-        }
-    }
 }
