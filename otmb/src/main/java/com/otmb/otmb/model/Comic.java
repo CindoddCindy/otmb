@@ -18,7 +18,7 @@ public class Comic {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comic", cascade = CascadeType.ALL)
     private Set<Book> books = new HashSet<>();
 
 
